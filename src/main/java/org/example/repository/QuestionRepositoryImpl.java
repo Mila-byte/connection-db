@@ -23,6 +23,21 @@ public class QuestionRepositoryImpl implements QuestionRepository {
                        select * from question where id = ?
                     """;
 
+    private String deleteById =
+            """
+                       delete from question where id = ?
+                    """;
+
+    private String updateById =
+            """
+                       update question set text = ?, topic = ? where id = ?
+                    """;
+
+    private String saveByParameters =
+            """
+                       insert into question (text, topic) values (?, ?)
+                    """;
+
     public QuestionRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
@@ -69,16 +84,37 @@ public class QuestionRepositoryImpl implements QuestionRepository {
 
     @Override
     public void save(Question question) {
-
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(saveByParameters);
+            preparedStatement.setString(1, question.getText());
+            preparedStatement.setString(2, question.getTopic());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void update(Question question) {
-
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(updateById);
+            preparedStatement.setString(1, question.getText());
+            preparedStatement.setString(2, question.getTopic());
+            preparedStatement.setInt(3, question.getId());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void delete(int id) {
-
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteById);
+            preparedStatement.setInt(1, id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
