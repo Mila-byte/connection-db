@@ -32,4 +32,21 @@ public class QuestionRepositoryImplTest {
        List<Question> result = questionRepository.getByTopic("OOP");
        System.out.println(result);
     }
+
+    @Test
+    public void deleteById() {
+        QuestionRepositoryImpl questionRepository = new QuestionRepositoryImpl(connection);
+        questionRepository.delete(8);
+    }
+    @Test
+    public void updateById() {
+        QuestionRepositoryImpl questionRepository = new QuestionRepositoryImpl(connection);
+        Question result = questionRepository.get(5);
+        questionRepository.update(new Question(result.getId(), "Principles OOP", "OOp"));
+    }
+    @Test
+    public void saveByParameters() {
+        QuestionRepositoryImpl questionRepository = new QuestionRepositoryImpl(connection);
+        questionRepository.save(new Question("question", "topic"));
+    }
 }
