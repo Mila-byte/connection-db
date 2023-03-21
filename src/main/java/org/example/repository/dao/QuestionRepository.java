@@ -2,6 +2,7 @@ package org.example.repository.dao;
 
 import org.example.model.Question;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface QuestionRepository {
@@ -14,4 +15,8 @@ public interface QuestionRepository {
     void delete(int id);
 
     List<Question> getByTopic(String topic);
+
+    List<Question> getAllQuestions() throws SQLException;
+
+    Question getRndQuestion() throws SQLException;
 }
