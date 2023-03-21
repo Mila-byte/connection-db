@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import org.example.exceptions.SqlUpdateException;
 import org.example.model.Question;
 import org.example.repository.dao.QuestionRepository;
 
@@ -36,6 +37,15 @@ public class QuestionRepositoryImpl implements QuestionRepository {
     private String saveByParameters =
             """
                        insert into question (text, topic) values (?, ?)
+                    """;
+    private String getAllQuestions =
+            """
+                      select * from question
+                    """;
+
+    private String getRndQuestion =
+            """
+                    select * from question order by random() limit 1
                     """;
 
     public QuestionRepositoryImpl(Connection connection) {
@@ -83,6 +93,34 @@ public class QuestionRepositoryImpl implements QuestionRepository {
     }
 
     @Override
+    public List<Question> getAllQuestions() throws SQLException {
+        List<Question> allQuestions = new ArrayList<>();
+        PreparedStatement preparedStatement = this.connection.prepareStatement(getAllQuestions);
+        ResultSet question = preparedStatement.executeQuery();
+        while (question.next()) {
+            allQuestions.add(Question.builder()
+                    .id(question.getInt("id"))
+                    .text(question.getString("text"))
+                    .topic(question.getString("topic"))
+                    .build());
+        }
+        return allQuestions;
+    }
+
+    @Override
+    public Question getRndQuestion() throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(getRndQuestion);
+        ResultSet question = preparedStatement.executeQuery();
+        ResultSet resultSet = preparedStatement.getResultSet();
+        resultSet.next();
+        return Question.builder()
+                .id(question.getInt("id"))
+                .text(question.getString("text"))
+                .topic(question.getString("topic"))
+                .build();
+    }
+
+    @Override
     public void save(Question question) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(saveByParameters);
@@ -103,7 +141,7 @@ public class QuestionRepositoryImpl implements QuestionRepository {
             preparedStatement.setInt(3, question.getId());
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SqlUpdateException(e.getMessage());
         }
     }
 
